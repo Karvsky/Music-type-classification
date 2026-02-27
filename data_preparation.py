@@ -1,43 +1,14 @@
 import tensorflow as tf
 import numpy as np
 import os
+from process_file_and_slice import process_file_and_slice
+from dataset_creating import create_dataset
+from spectogram import get_spectrogram
 
 AUTOTUNE = tf.data.AUTOTUNE
 target_length = 66150
 
-def process_file_and_slice(file_path):
 
-    label = tf.strings.split(file_path, os.path.sep)[-2]
-
-    audio_binary = tf.io.read_file(file_path)
-    audio, _ = tf.audio.decode_wav(contents=audio_binary)
-    waveform = tf.squeeze(audio, axis=-1)
-
-    chunks = tf.signal.frame(waveform, frame_length=target_length, frame_step=target_length, pad_end=True)
-
-    num_chunks = tf.shape(chunks)[0]
-    labels = tf.repeat(label, num_chunks)
-    
-    return chunks, labels
-
-def create_dataset(files):
-
-    ds = tf.data.Dataset.from_tensor_slices(files)
-
-    ds = ds.map(process_file_and_slice, num_parallel_calls=AUTOTUNE)
-
-    ds = ds.unbatch()
-    return ds
-
-def get_spectrogram(waveform, label):
-
-    spectrogram = tf.signal.stft(waveform, frame_length=255, frame_step=128)
-
-    spectrogram = tf.abs(spectrogram)
-
-    spectrogram = spectrogram[..., tf.newaxis]
-    
-    return spectrogram, label
 
 def ready_data():
 
