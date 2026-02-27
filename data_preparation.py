@@ -8,8 +8,6 @@ from spectogram import get_spectrogram
 AUTOTUNE = tf.data.AUTOTUNE
 target_length = 66150
 
-
-
 def ready_data():
 
       path = r"..\..\Data\genres_original"
